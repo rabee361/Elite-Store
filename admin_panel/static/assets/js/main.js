@@ -1,86 +1,139 @@
 // Theme switching functionality
 document.addEventListener('DOMContentLoaded', function() {
+    // Get theme toggle button and user dropdown elements
+    const userAvatar = document.getElementById('userAvatar');
+    const userDropdown = document.getElementById('userDropdown');
     
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = themeToggle.querySelector('i');
+    // Get theme option elements
+    const systemThemeOption = document.getElementById('systemThemeOption');
+    const lightThemeOption = document.getElementById('lightThemeOption');
+    const darkThemeOption = document.getElementById('darkThemeOption');
+    const themeSystem = document.getElementById('themeSystem');
+    const themeLight = document.getElementById('themeLight');
+    const themeDark = document.getElementById('themeDark');
     
-    // Check for saved theme preference
-    const currentTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', currentTheme);
-    updateThemeIcon(currentTheme);
-    
-    // Toggle theme
-    themeToggle.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        updateThemeIcon(newTheme);
-    });
-    
-    function updateThemeIcon(theme) {
-        if (theme === 'dark') {
-            themeIcon.classList.remove('fa-moon');
-            themeIcon.classList.add('fa-sun');
-        } else {
-            themeIcon.classList.remove('fa-sun');
-            themeIcon.classList.add('fa-moon');
-        }
+    // Toggle dropdown when avatar is clicked
+    if (userAvatar) {
+        userAvatar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle('active');
+        });
     }
-});
-
-
-
-
-
-
-// Add this function to initialize copy buttons
-function initializeCopyButtons() {
-    document.querySelectorAll('.copy-btn').forEach(button => {
-        // Remove existing event listener to prevent duplicates
-        button.removeEventListener('click', copyButtonHandler);
-        // Add new event listener
-        button.addEventListener('click', copyButtonHandler);
-    });
-}
-
-// Separate the handler function
-async function copyButtonHandler(e) {
-    e.stopPropagation(); // Prevent row click event
-    const url = this.getAttribute('data-url');
     
-    try {
-        // Try modern clipboard API first
-        if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(url);
-            showToast('تم نسخ الرابط بنجاح');
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (userDropdown && !userDropdown.contains(e.target) && e.target !== userAvatar) {
+            userDropdown.classList.remove('active');
+        }
+    });
+    
+    // Theme selection handling
+    function setTheme(theme) {
+        if (theme === 'system') {
+            // Check system preference
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+            localStorage.setItem('theme', 'system');
         } else {
-            // Fallback for older browsers and non-HTTPS contexts
-            const textArea = document.createElement('textarea');
-            textArea.value = url;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-999999px';
-            textArea.style.top = '-999999px';
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-
-            try {
-                document.execCommand('copy');
-                textArea.remove();
-                showToast('تم نسخ الرابط بنجاح');
-            } catch (err) {
-                textArea.remove();
-                showToast('حدث خطأ أثناء نسخ الرابط - الرجاء النسخ يدوياً');
-                showSelectableUrl(url);
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        }
+        
+        // Update active class on theme options
+        updateActiveThemeOption(theme);
+    }
+    
+    // Update active class on theme options
+    function updateActiveThemeOption(theme) {
+        if (systemThemeOption && lightThemeOption && darkThemeOption) {
+            systemThemeOption.classList.remove('active');
+            lightThemeOption.classList.remove('active');
+            darkThemeOption.classList.remove('active');
+            
+            if (theme === 'system') {
+                systemThemeOption.classList.add('active');
+            } else if (theme === 'light') {
+                lightThemeOption.classList.add('active');
+            } else if (theme === 'dark') {
+                darkThemeOption.classList.add('active');
             }
         }
-    } catch (err) {
-        showToast('حدث خطأ أثناء نسخ الرابط - الرجاء النسخ يدوياً');
-        showSelectableUrl(url);
     }
-}
+    
+    // Set initial theme based on saved preference
+    const savedTheme = localStorage.getItem('theme') || 'system';
+    setTheme(savedTheme);
+    
+    // Add click event listeners to theme option containers
+    if (systemThemeOption && lightThemeOption && darkThemeOption) {
+        systemThemeOption.addEventListener('click', function() {
+            themeSystem.checked = true;
+            setTheme('system');
+        });
+        
+        lightThemeOption.addEventListener('click', function() {
+            themeLight.checked = true;
+            setTheme('light');
+        });
+        
+        darkThemeOption.addEventListener('click', function() {
+            themeDark.checked = true;
+            setTheme('dark');
+        });
+    }
+    
+    // Also keep the radio button event listeners for direct interaction
+    if (themeSystem && themeLight && themeDark) {
+        themeSystem.addEventListener('change', function() {
+            if (this.checked) setTheme('system');
+        });
+        
+        themeLight.addEventListener('change', function() {
+            if (this.checked) setTheme('light');
+        });
+        
+        themeDark.addEventListener('change', function() {
+            if (this.checked) setTheme('dark');
+        });
+    }
+    
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        if (localStorage.getItem('theme') === 'system') {
+            setTheme('system');
+        }
+    });
+    
+    // Handle sidebar toggle for mobile
+    const hamburgerMenu = document.getElementById('hamburgerMenu');
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    
+    if (hamburgerMenu) {
+        hamburgerMenu.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+        });
+    }
+    
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', function() {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        });
+    }
+    
+    // Handle collapsible sidebar items
+    const collapsibleItems = document.querySelectorAll('.nav-item.collapsible');
+    
+    collapsibleItems.forEach(item => {
+        const header = item.querySelector('.nav-header');
+        
+        header.addEventListener('click', () => {
+            item.classList.toggle('active');
+        });
+    });
+});
 
 // Call initializeCopyButtons when the page loads
 document.addEventListener('DOMContentLoaded', function() {
@@ -92,7 +145,6 @@ function clickHandler(event) {
         window.location.href = event.currentTarget.getAttribute('data-link');
     }
 }
-
 
 document.addEventListener('DOMContentLoaded', function() {
     const hamburgerBtn = document.getElementById('hamburgerMenu');
@@ -176,7 +228,6 @@ function showSelectableUrl(url) {
     });
 }
 
-
 function executeBulkAction() {
     const bulkActionForm = document.getElementById('bulkActionForm');
     if (!bulkActionForm) {
@@ -228,11 +279,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-
-
-
-
-
 
 document.addEventListener('DOMContentLoaded', function() {
     // Handle collapsible sections
