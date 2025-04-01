@@ -1,0 +1,401 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <script>
+        // Check for saved theme preference
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+    </script>
+    <script rel="script" src="{% static 'assets/js/main.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
+    <script rel="script" src="{% static 'assets/js/htmx.min.js' %}"></script>
+    <script src="https://unpkg.com/htmx-ext-ws@2.0.2" integrity="sha384-vuKxTKv5TX/b3lLzDKP2U363sOAoRo5wSvzzc3LJsbaQRSBSS+3rKKHcOx5J8doU" crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <meta name="description" content="Fazaa Dashboard">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite - {% block title %}{% endblock %}</title>
+    <link rel="icon" href="{% static 'assets/images/elite_logo.png' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.4.0/clipboard.min.js">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="container-body">
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar">
+        <div class="navbar-logo">
+            <img src="{% static 'assets/images/elite_logo.png' %}" alt="Elite Logo" class="navbar-logo-img">
+        </div>
+        <div class="navbar-controls">
+            <!-- User Avatar -->
+            <div class="user-avatar" id="userAvatar">
+                {{ request.user.username|first|upper }}
+            </div>
+            
+            <!-- User Dropdown Menu -->
+            <div class="user-dropdown" id="userDropdown">
+                <div class="theme-options">
+                    <div class="theme-option">
+                        <input type="radio" id="themeSystem" name="theme" value="system">
+                        <label for="themeSystem">نظام التشغيل</label>
+                    </div>
+                    <div class="theme-option">
+                        <input type="radio" id="themeLight" name="theme" value="light">
+                        <label for="themeLight">الوضع النهاري</label>
+                    </div>
+                    <div class="theme-option">
+                        <input type="radio" id="themeDark" name="theme" value="dark">
+                        <label for="themeDark">الوضع الليلي</label>
+                    </div>
+                </div>
+                <a href="" class="dropdown-item">
+                    <i class="fas fa-user"></i>
+                    <span>حسابي</span>
+                </a>
+                <a href="javascript:void(0)" class="dropdown-item" onclick="document.getElementById('logout-form').submit();">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </a>
+            </div>
+            
+            <!-- Hamburger Menu Button -->
+            <button id="hamburgerMenu" class="hamburger-menu-navbar" aria-label="Toggle sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Add Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <div class="dashboard-container">
+        <aside class="sidebar">
+
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+
+                    <div class="nav-item">
+                        <a href="">
+                            <div class="nav-header">
+                                <i class="fa-solid fa-chart-line"></i>
+                                <span>لوحة التحكم</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="nav-item collapsible">
+                        <div class="nav-header">
+                            <i class="fas fa-users"></i>
+                            <span>المستخدمين</span>
+                            <i class="fas fa-chevron-down arrow"></i>
+                        </div>
+                        <div class="nav-content">
+                            <a href="" class="sub-item">الأدمن</a>
+                            <a href="" class="sub-item">العملاء</a>
+                            <a href="" class="sub-item">الشركاء</a>
+                        </div>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="">
+                            <div class="nav-header">
+                                <i class="fa-solid fa-building"></i>
+                                <span>أنواع المنظمات</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="">
+                            <div class="nav-header">
+                                <i class="fa-regular fa-credit-card"></i>
+                                <span>باقات الاشتراك</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="">
+                            <div class="nav-header">
+                                <i class="fa-solid fa-circle-info"></i>
+                                <span>معلومات تعريفية</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="">
+                            <div class="nav-header">
+                                <i class="fa-solid fa-map-location-dot"></i>
+                                <span>الأفرع</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="">
+                            <div class="nav-header">
+                                <i class="fa-brands fa-facebook"></i>
+                                <span>تواصل اجتماعي</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="">
+                            <div class="nav-header">
+                                <i class="fa-solid fa-truck"></i>
+                                <span>برامج التوصيل</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="nav-item collapsible">
+                        <div class="nav-header">
+                            <i class="fa-solid fa-briefcase"></i>
+                            <span>عروض و خصومات</span>
+                            <i class="fas fa-chevron-down arrow"></i>
+                        </div>
+                        <div class="nav-content">
+                            <a href="" class="sub-item">عروض الأفراد</a>
+                            <a href="" class="sub-item">عروض الخدمات</a>
+                            <a href="" class="sub-item">القوالب</a>
+                        </div>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="">
+                            <div class="nav-header">
+                                <i class="fa-regular fa-image"></i>
+                                <span>الكتالوجات</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="nav-item collapsible">
+                        <div class="nav-header">
+                            <i class="fa-solid fa-images"></i>
+                            <span>المعرض</span>
+                            <i class="fas fa-chevron-down arrow"></i>
+                        </div>
+                        <div class="nav-content">
+                            <a href="" class="sub-item">معرض الصور</a>
+                            <a href="" class="sub-item">معرض الريلز</a>
+                        </div>
+                    </div>
+
+                    <div class="nav-item collapsible">
+                        <div class="nav-header">
+                            <i class="fa-solid fa-share-from-square"></i>
+                            <span>محفظة الروابط</span>
+                            <i class="fas fa-chevron-down arrow"></i>
+                        </div>
+                        <div class="nav-content">
+                            <a href="" class="sub-item">التواصل الاجتماعي</a>
+                            <a href="" class="sub-item">برامج التوصيل</a>
+                        </div>
+                    </div>
+
+                    <div class="nav-item collapsible">
+                        <div class="nav-header">
+                            <i class="fas fa-question-circle"></i>
+                            <span>مركز المساعدة</span>
+                            <i class="fas fa-chevron-down arrow"></i>
+                        </div>
+                        <div class="nav-content">
+                            <a href="" class="sub-item">الأسئلة الشائعة</a>
+                            <a href="" class="sub-item">التواصل معنا</a>
+                        </div>
+                    </div>
+
+                    <!-- <div class="nav-item collapsible">
+                        <div class="nav-header">
+                            <i class="fas fa-info-circle"></i>
+                            <span>عن التطبيق</span>
+                            <i class="fas fa-chevron-down arrow"></i>
+                        </div>
+                        <div class="nav-content">
+                            <a href="#" class="sub-item">تقارير المبيعات</a>
+                            <a href="#" class="sub-item">تقارير المستخدمين</a>
+                            <a href="#" class="sub-item">تقارير الأداء</a>
+                        </div>
+                    </div> -->
+
+                    <div class="nav-item">
+                        <a href="">
+                            <div class="nav-header">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>سياسة الخصوصية</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="">
+                            <div class="nav-header">
+                                <i class="fas fa-file-contract"></i>
+                                <span>الشروط و الأحكام</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="">
+                            <div class="nav-header">
+                                <i class="fas fa-bell"></i>
+                                <span>الإشعارات</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="">
+                            <div class="nav-header">
+                                <i class="fas fa-headset"></i>
+                                <span>الدعم</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="">
+                            <div class="nav-header">
+                                <i class="fas fa-info-circle"></i>
+                                <span>عن التطبيق</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="">
+                            <div class="nav-header">
+                                <i class="fas fa-flag"></i>
+                                <span>التبليغات</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <form action="" method="post" id="logout-form">
+                            {% csrf_token %}
+                            <button type="submit" class="logout-btn">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>تسجيل الخروج</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+        
+    <script>
+        // User Avatar Dropdown Toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const userAvatar = document.getElementById('userAvatar');
+            const userDropdown = document.getElementById('userDropdown');
+            const themeSystem = document.getElementById('themeSystem');
+            const themeLight = document.getElementById('themeLight');
+            const themeDark = document.getElementById('themeDark');
+            
+            // Toggle dropdown when avatar is clicked
+            userAvatar.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('active');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!userDropdown.contains(e.target) && e.target !== userAvatar) {
+                    userDropdown.classList.remove('active');
+                }
+            });
+            
+            // Theme selection handling
+            function setTheme(theme) {
+                if (theme === 'system') {
+                    // Check system preference
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+                    localStorage.setItem('theme', 'system');
+                } else {
+                    document.documentElement.setAttribute('data-theme', theme);
+                    localStorage.setItem('theme', theme);
+                }
+                
+                // Update icon in the navbar
+                const moonIcon = document.querySelector('.fa-moon');
+                const sunIcon = document.querySelector('.fa-sun');
+                if (document.documentElement.getAttribute('data-theme') === 'dark') {
+                    if (moonIcon) moonIcon.classList.replace('fa-moon', 'fa-sun');
+                } else {
+                    if (sunIcon) sunIcon.classList.replace('fa-sun', 'fa-moon');
+                }
+            }
+            
+            // Set initial radio button state based on current theme
+            const savedTheme = localStorage.getItem('theme') || 'system';
+            if (savedTheme === 'system') {
+                themeSystem.checked = true;
+            } else if (savedTheme === 'light') {
+                themeLight.checked = true;
+            } else if (savedTheme === 'dark') {
+                themeDark.checked = true;
+            }
+            
+            // Add event listeners to radio buttons
+            themeSystem.addEventListener('change', function() {
+                if (this.checked) setTheme('system');
+            });
+            
+            themeLight.addEventListener('change', function() {
+                if (this.checked) setTheme('light');
+            });
+            
+            themeDark.addEventListener('change', function() {
+                if (this.checked) setTheme('dark');
+            });
+            
+            // Listen for system theme changes
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+                if (localStorage.getItem('theme') === 'system') {
+                    setTheme('system');
+                }
+            });
+        });
+        
+        // Sidebar toggle functionality (existing code)
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburgerMenu = document.getElementById('hamburgerMenu');
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            hamburgerMenu.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+                sidebarOverlay.classList.toggle('active');
+            });
+            
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+            });
+            
+            // Collapsible sidebar navigation
+            const collapsibleItems = document.querySelectorAll('.nav-item.collapsible');
+            
+            collapsibleItems.forEach(item => {
+                const header = item.querySelector('.nav-header');
+                
+                header.addEventListener('click', function() {
+                    item.classList.toggle('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
