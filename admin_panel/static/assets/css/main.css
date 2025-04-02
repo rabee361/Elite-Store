@@ -8,7 +8,7 @@
     --bg-table-header: #F0F0F0;  /* Light gray for table headers */
     --hover-bg: #F5F5F5;  /* Slightly darker than secondary for hover states */
     --text-primary: #333333;  /* Dark gray for primary text */
-    --text-secondary: #666666;  /* Medium gray for secondary text */
+    --text-secondary: #f0f0f0;  /* Medium gray for secondary text */
     --border-color: #E5E5E5;  /* Light gray for borders */
     --accent-color: #C41E3A;  /* Red accent color from the ELITE logo */
 }
@@ -893,7 +893,6 @@
 
 .stat-card {
     background: var(--bg-secondary);
-    color: var(--text-primary);
     cursor: pointer;
     border-radius: 8px;
     text-decoration: none;
